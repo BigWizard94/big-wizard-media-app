@@ -71,8 +71,11 @@
     </div>
 
     <!-- Login Modal -->
-    <div id="login-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div class="bg-gray-900 border border-purple-900 p-8 rounded-2xl w-full max-w-sm shadow-2xl">
+    <div id="login-modal" onclick="closeLoginOnBackdrop(event)" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="relative bg-gray-900 border border-purple-900 p-8 rounded-2xl w-full max-w-sm shadow-2xl">
+            <button onclick="hideLogin()" aria-label="Close modal" class="absolute top-4 right-4 text-gray-400 hover:text-white transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
             <h2 class="text-2xl font-serif mb-6 text-center text-purple-400">Enter The Sanctum</h2>
             <input type="text" id="username" placeholder="Enter your wizard name..." class="w-full bg-black p-4 rounded-xl mb-4 border border-gray-800 text-white placeholder-gray-600">
             <button onclick="login()" class="w-full bg-purple-600 py-4 rounded-xl font-bold hover:bg-purple-500 transition active:scale-95">Unlock Portal</button>
@@ -81,18 +84,34 @@
 
     <script>
         function showLogin() {
-            document.getElementById('login-modal').classList.remove('hidden');
+            const modal = document.getElementById('login-modal');
+            modal.classList.remove('hidden');
+            const usernameInput = document.getElementById('username');
+            usernameInput.value = '';
+            usernameInput.focus();
+        }
+
+        function hideLogin() {
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        function closeLoginOnBackdrop(e) {
+            if (e.target === document.getElementById('login-modal')) {
+                hideLogin();
+            }
         }
 
         function login() {
-            const user = document.getElementById('username').value;
+            const usernameInput = document.getElementById('username');
+            const user = usernameInput.value.trim();
             if(!user) return;
             
             // Hide login, show dashboard
-            document.getElementById('login-modal').classList.add('hidden');
+            hideLogin();
             document.getElementById('landing-view').classList.add('hidden');
             document.getElementById('dashboard-view').classList.remove('hidden');
             document.getElementById('user-display').innerText = user;
+            usernameInput.value = '';
             
             // Save state if we wanted to persist
             window.scrollTo(0,0);
@@ -101,7 +120,20 @@
         function logout() {
             document.getElementById('landing-view').classList.remove('hidden');
             document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('username').value = '';
         }
+
+        document.getElementById('username').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !document.getElementById('login-modal').classList.contains('hidden')) {
+                hideLogin();
+            }
+        });
     </script>
 </body>
 </html>
